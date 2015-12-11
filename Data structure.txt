@@ -1,4 +1,8 @@
-Data structure (v0.1):
+Data structure (v0.2):
+
+Start of file: (12 bytes)
+Byte  (4): "Log-" string literal
+Long  (8): Robot start time
 
 Header: (10 bytes)
 Byte  (1): ^ (Start of block marker, 0x5E = 94)
@@ -16,3 +20,7 @@ Byte  (1): Bus Voltage (*10)
 
 Int   (4): Loops since last dump
 Long  (8): Last update time
+
+Groundtruth: (1 + 6n bytes)
+Byte  (1): Number of samples
+Byte[](6): LEFT_X LEFT_Y LEFT_SQUAL RIGHT_X RIGHT_Y RIGHT_SQUAL
