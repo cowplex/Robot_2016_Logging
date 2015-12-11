@@ -1,4 +1,4 @@
-Data structure (v0.2):
+Data structure (v0.3):
 
 Start of file: (12 bytes)
 Byte  (4): "Log-" string literal
@@ -6,20 +6,21 @@ Long  (8): Robot start time
 
 Header: (10 bytes)
 Byte  (1): ^ (Start of block marker, 0x5E = 94)
-Long  (8): Enabled time (ms)
+Int   (4): Enabled time (ms)
+Float (4): Battery voltage
 Byte  (1): Bitmask field: (X X X X X Groundtruth Drive Semaphore)
 
-Semaphore: (8 bytes)
-Long  (8): Last update time
+Semaphore: (4 bytes)
+Int   (4): Last update time
 
-Drive: (24 bytes)
+Drive: (20 bytes)
 4x:
 Byte  (1): Output level
 Byte  (1): Current
 Byte  (1): Bus Voltage (*10)
 
 Int   (4): Loops since last dump
-Long  (8): Last update time
+Int   (4): Last update time
 
 Groundtruth: (1 + 6n bytes)
 Byte  (1): Number of samples

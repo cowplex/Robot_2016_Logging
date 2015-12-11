@@ -1,10 +1,10 @@
-# Version 0.2
+# Version 0.3
 
 robot_data_parse = function(filename)
 {
 	data_offset = 12
 
-	data = data.frame("Time" = integer(), "Data_offset" = integer(), "Sem_update" = integer(), "FL_out" = integer(), "FL_current" = integer(), "FL_busvolt" = integer(), "BL_out" = integer(), "BL_current" = integer(), "BL_busvolt" = integer(), "BR_out" = integer(), "BR_current" = integer(), "BR_busvolt" = integer(), "FR_out" = integer(), "FR_current" = integer(), "FR_busvolt" = integer(), "Drive_loops" = integer(), "Drive_update" = integer(), stringsAsFactors=FALSE);
+	data = data.frame("Time" = integer(), "Data_offset" = integer(), "Voltage" = numeric(), "Sem_update" = integer(), "FL_out" = integer(), "FL_current" = integer(), "FL_busvolt" = integer(), "BL_out" = integer(), "BL_current" = integer(), "BL_busvolt" = integer(), "BR_out" = integer(), "BR_current" = integer(), "BR_busvolt" = integer(), "FR_out" = integer(), "FR_current" = integer(), "FR_busvolt" = integer(), "Drive_loops" = integer(), "Drive_update" = integer(), stringsAsFactors=FALSE);
 
 	readfile = file(filename, "rb");
 	# Eat 12 bytes at the beginning of the file
@@ -16,8 +16,10 @@ robot_data_parse = function(filename)
 		if(chirpval != 94)
 			print(data_offset);
 		
-		match_time = readBin(readfile, integer(), size = 8, endian = "big");
+		match_time = readBin(readfile, integer(), size = 4, endian = "big");
 		current_offset = data_offset;
+		
+		header = c(match_time, current_offset, readBin(readfile, numeric(), size = 4, endian = "big"));
 		
 		# Keep track of the current offset in the data file
 		data_offset = data_offset+10;
@@ -28,8 +30,8 @@ robot_data_parse = function(filename)
 		# Semaphore data
 		if(bitwAnd(mask, 1))
 		{
-			semaphore = readBin(readfile, integer(), size = 8, endian = "big");
-			data_offset = data_offset+8;
+			semaphore = readBin(readfile, integer(), size = 4, endian = "big");
+			data_offset = data_offset+4;
 		} else {
 			semaphore = NA;
 		}
@@ -37,7 +39,7 @@ robot_data_parse = function(filename)
 		# Drive data
 		if(bitwAnd(mask, 2))
 		{
-			data_offset = data_offset+24;
+			data_offset = data_offset+20;
 			drive = c(
 				readBin(readfile, integer(), size = 1, endian = "big"),
 				readBin(readfile, integer(), size = 1, endian = "big"),
@@ -57,7 +59,7 @@ robot_data_parse = function(filename)
 				
 				readBin(readfile, integer(), size = 4, endian = "big"),	
 				
-				readBin(readfile, integer(), size = 8, endian = "big")
+				readBin(readfile, integer(), size = 4, endian = "big")
 			);
 		}
 		else
@@ -88,7 +90,7 @@ robot_data_parse = function(filename)
 		}
 		
 		# Add current loop data to the data frame
-		data[nrow(data)+1, ] = c(match_time, current_offset, semaphore, drive);
+		data[nrow(data)+1, ] = c(header, semaphore, drive);
 	}
 	close(readfile);
 
